@@ -1,0 +1,24 @@
+{
+	"name": "Fudan select course helper",
+	"version": "0.1.2",
+	"description": "Modify the xk page and automatically select course.",
+	"background": {"scripts": ["background.js"], "presistent": true},
+	"page_action": {
+		"name": "Select Course",
+		"default_icon": "2.png",
+		"default_title": "Select course helper"
+	},
+	"permissions": [
+		"declarativeContent",
+		"http://xk.fudan.edu.cn/",
+		"activeTab"
+	],
+	"web_accessible_resources": [
+		"lessondata/lessonJSONs.txt"
+	],
+	"icons": {
+		"48": "2.png",
+		"128": "2.png"
+	},
+	"manifest_version": 2
+}
