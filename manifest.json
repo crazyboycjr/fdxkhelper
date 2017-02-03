@@ -11,7 +11,8 @@
 	"permissions": [
 		"declarativeContent",
 		"http://xk.fudan.edu.cn/",
-		"activeTab"
+		"activeTab",
+		"nativeMessaging"
 	],
 	"web_accessible_resources": [
 		"lessondata/lessonJSONs.txt"
