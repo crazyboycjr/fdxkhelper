@@ -98,9 +98,14 @@ function main() {
 	$('#startBtn').click(getCourseId);
 	$('#stopBtn').click(() => { clearInterval(window.intervalId); });
 
+
 }
 
 
 let script = document.createElement('script');
 script.appendChild(document.createTextNode('(' + main + ')();'));
 document.body.appendChild(script);
+
+chrome.runtime.sendMessage({getToken: true}, (response) => {
+	console.log(response.token);
+});
