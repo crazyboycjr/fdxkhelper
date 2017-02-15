@@ -25,18 +25,20 @@ chrome.pageAction.onClicked.addListener(function (tab) {
 let port = null;
 let hostName = 'xyz.crazyboycjr.fdxkhelper';
 
-function sendNativeMessage(imgData) {
-	//msg = {"text": imgData};
-	msg = imgData;
+function sendNativeMessage(imgData, cb) {
+	msg = {"text": imgData};
+	//msg = imgData;
 	console.log('sending:', msg);
-	port.postMessage(msg);
-	/*
+	//port.postMessage(msg);
+	
 	chrome.runtime.sendNativeMessage(hostName, msg, (response) => {
 		console.log('收到', response);
+		cb(response);
 	});
-	*/
+	
 }
 
+/*
 function onNativeMessage(msg) {
 	console.log('recv:', msg);
 }
@@ -51,15 +53,19 @@ function connect() {
 	port.onMessage.addListener(onNativeMessage);
 	port.onDisconnect.addListener(onDisconnect);
 }
+*/
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 	console.log('sender:', sender);
 	console.log('msg:', msg);
 	if (msg.getToken) {
-		if (!port) {
-			connect();
-		}
-		sendNativeMessage(msg.imgData);
-		sendResponse({token: 'asas'});
+		//if (!port) {
+		//	connect();
+		//}
+		sendNativeMessage(msg.imgData, (response) => {
+			console.log('2233', response);
+			sendResponse({token: response});
+		});
 	}
+	return true;
 });

@@ -60,18 +60,25 @@ function main() {
 		let n = $result.size();
 		if (n > 5) $result.first().remove();
 	}
-	
+
 	function selectLoop(lessonId, course, callback) {
 		function doSelect() {
 			let url = '/xk/stdElectCourse!batchOperator.action' + '?' + 'profileId=' + window.profileId;
-			console.log('POSTing...', url);
-			//$.post('/xk/stdElectCourse!batchOperator.action?profileId=404',
-			$.post(url, { optype: 'true', operator0: lessonId + ':true:0' , captcha_response: '' }, (data) => {
-				printState(data);
-				
-				if (data.indexOf('成功') > 0 || data.indexOf('success') > 0) {
-					callback();
-				}
+			
+			recognize().then((token) => {
+				console.log('The token is:', token);
+				console.log('POSTing...', url);
+				//$.post('/xk/stdElectCourse!batchOperator.action?profileId=404',
+
+				$.post(url, { optype: 'true', operator0: lessonId + ':true:0' , captcha_response: token }, (data) => {
+					printState(data);
+
+					if (data.indexOf('成功') > 0 || data.indexOf('success') > 0) {
+						callback();
+					}
+				});
+			}, (err) => {
+				console.log(err);
 			});
 		}
 		
@@ -114,24 +121,40 @@ let script = document.createElement('script');
 script.appendChild(document.createTextNode('(' + main + ')();'));
 document.body.appendChild(script);
 
-const appId = 'baibnlajdgdfldnolclmgghenajommha';
-let imgUrl = 'http://xk.fudan.edu.cn/xk/captcha/image.action';
-function fetchBlob(uri, cb) {
-	let xhr = new XMLHttpRequest();
-	xhr.open('GET', uri, true);
-	xhr.responseType = 'arraybuffer';
-	xhr.onload = function(e) {
-		if (this.status == 200) {
-			cb(this.response);
-		}
-	};
-	xhr.send();
-}
-fetchBlob(imgUrl, (blob) => {
-	let imgData = btoa(String.fromCharCode.apply(null, new Uint8Array(blob)));
-	console.log('imgData:', imgData);
-	chrome.runtime.sendMessage(appId, {getToken: true, imgData: imgData}, (response) => {
-		console.log('response:', response);
-		console.log('response.toke:', response.token);
+
+function recognize() {
+	const appId = 'baibnlajdgdfldnolclmgghenajommha';
+	const imgUrl = 'http://xk.fudan.edu.cn/xk/captcha/image.action';
+
+	$(document).ready(() => {
+		$.get(imgUrl, (data) => {
+			console.log(data);
+		});
 	});
-});
+
+	return new Promise((resolve, reject) => {
+
+		function fetchBlob(uri, cb) {
+			let xhr = new XMLHttpRequest();
+			xhr.open('GET', uri, true);
+			xhr.responseType = 'arraybuffer';
+			xhr.onload = function(e) {
+				if (this.status == 200) {
+					cb(this.response);
+				}
+			};
+			xhr.send();
+		}
+
+		fetchBlob(imgUrl, (blob) => {
+			let imgData = btoa(String.fromCharCode.apply(null, new Uint8Array(blob)));
+			console.log('imgData:', imgData);
+			chrome.runtime.sendMessage(appId, {getToken: true, imgData: imgData}, (response) => {
+				console.log('response:', response);
+				resolve(response.token);
+			});
+		});
+	});
+}	
+
+recognize();

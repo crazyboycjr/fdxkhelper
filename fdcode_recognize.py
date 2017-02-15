@@ -3,6 +3,7 @@
 import struct
 import sys
 from subprocess import Popen, PIPE, STDOUT
+import json
 
 def send_message(msg):
     sys.stdout.write(struct.pack('I', len(msg)))
@@ -13,8 +14,9 @@ def Main():
     text_length_bytes = sys.stdin.read(4)
     text_length = struct.unpack('i', text_length_bytes)[0]
     text = sys.stdin.read(text_length).decode('utf-8')
+    imgStr = json.loads(text)["text"]
     
-    imgData = text.decode('base64')
+    imgData = imgStr.decode('base64')
     fout = open('/tmp/ab.jpg', 'w')
     fout.write(imgData)
     fout.close()
