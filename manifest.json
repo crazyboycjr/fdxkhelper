@@ -19,7 +19,7 @@
 			"http://*/*",
 			"https://*/*"
 		],
-		"js": ["jquery.js", "xk.js"]
+		"js": ["jquery.js"]
 	}],
 	"externally_connectable": {
 		"matches": ["*://xk.fudan.edu.cn/*"]

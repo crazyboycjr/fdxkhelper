@@ -21,10 +21,11 @@ def Main():
     fout.write(imgData)
     fout.close()
 
-    p = Popen(['/usr/bin/tesseract', 'stdin', 'stdout'], stdout=PIPE, stdin=PIPE, stderr=PIPE)
+    p = Popen(['/usr/bin/tesseract', '-c', 'tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyz', 'stdin', 'stdout'], stdout=PIPE, stdin=PIPE, stderr=PIPE)
     res = p.communicate(input=imgData)[0]
 
     res = res.strip()
+    res = res.replace(' ', '')
     fout = open('/tmp/res', 'w')
     fout.write(res)
     fout.close()

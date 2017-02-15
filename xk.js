@@ -87,6 +87,7 @@ function main() {
 
 
 let script = document.createElement('script');
+script.id = 'injected';
 script.appendChild(document.createTextNode('(' + main + ')();'));
 document.body.appendChild(script);
 
@@ -179,3 +180,9 @@ document.addEventListener('RW759_connectExtension', (e) => {
 });
 
 //recognize();
+
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+	console.log(sender.tab);
+	$('#selectHelper').remove();
+	$('#injected').remove();
+});
