@@ -14,9 +14,6 @@
 		"activeTab",
 		"nativeMessaging"
 	],
-	"web_accessible_resources": [
-		"lessondata/lessonJSONs.txt"
-	],
 	"icons": {
 		"48": "2.png",
 		"128": "2.png"

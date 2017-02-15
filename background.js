@@ -13,7 +13,7 @@ chrome.runtime.onInstalled.addListener(function() {
 	});
 });
 
-
+// Bug: 导致刷新之后无法再次注入，必须重载插件
 let injected = false;
 chrome.pageAction.onClicked.addListener(function (tab) {
 	if (!injected) {
