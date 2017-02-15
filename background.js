@@ -26,31 +26,40 @@ let port = null;
 let hostName = 'xyz.crazyboycjr.fdxkhelper';
 
 function sendNativeMessage(imgData) {
-	msg = {"text": imgData};
-	port.postMessage(imgData);
+	//msg = {"text": imgData};
+	msg = imgData;
+	console.log('sending:', msg);
+	port.postMessage(msg);
+	/*
+	chrome.runtime.sendNativeMessage(hostName, msg, (response) => {
+		console.log('收到', response);
+	});
+	*/
 }
 
 function onNativeMessage(msg) {
-	//TODO Add some check of invalid char
-	return msg;
+	console.log('recv:', msg);
 }
 
-function onDisconnected() {
+function onDisconnect() {
 	port = null;
+	console.log('Disconnected');
 }
 
 function connect() {
 	port = chrome.runtime.connectNative(hostName);
 	port.onMessage.addListener(onNativeMessage);
-	port.onDisconnect.addListerner(onDisconnected);
+	port.onDisconnect.addListener(onDisconnect);
 }
 
-chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+	console.log('sender:', sender);
+	console.log('msg:', msg);
 	if (msg.getToken) {
 		if (!port) {
 			connect();
 		}
 		sendNativeMessage(msg.imgData);
-		sendResponse({token: token});
+		sendResponse({token: 'asas'});
 	}
 });

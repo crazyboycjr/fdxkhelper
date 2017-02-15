@@ -114,6 +114,24 @@ let script = document.createElement('script');
 script.appendChild(document.createTextNode('(' + main + ')();'));
 document.body.appendChild(script);
 
-chrome.runtime.sendMessage({getToken: true}, (response) => {
-	console.log(response.token);
+const appId = 'baibnlajdgdfldnolclmgghenajommha';
+let imgUrl = 'http://xk.fudan.edu.cn/xk/captcha/image.action';
+function fetchBlob(uri, cb) {
+	let xhr = new XMLHttpRequest();
+	xhr.open('GET', uri, true);
+	xhr.responseType = 'arraybuffer';
+	xhr.onload = function(e) {
+		if (this.status == 200) {
+			cb(this.response);
+		}
+	};
+	xhr.send();
+}
+fetchBlob(imgUrl, (blob) => {
+	let imgData = btoa(String.fromCharCode.apply(null, new Uint8Array(blob)));
+	console.log('imgData:', imgData);
+	chrome.runtime.sendMessage(appId, {getToken: true, imgData: imgData}, (response) => {
+		console.log('response:', response);
+		console.log('response.toke:', response.token);
+	});
 });

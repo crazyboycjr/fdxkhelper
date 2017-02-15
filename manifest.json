@@ -14,6 +14,9 @@
 		"activeTab",
 		"nativeMessaging"
 	],
+	"externally_connectable": {
+		"matches": ["*://xk.fudan.edu.cn/*"]
+	},
 	"icons": {
 		"48": "2.png",
 		"128": "2.png"
