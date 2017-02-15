@@ -1,38 +1,52 @@
 function main() {
 
-	// add some form and button for interact
+	/* Change UI */
 	function modifyPage() {
 		$("head").append('<link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/3.3.5/css/bootstrap.min.css">');
 		$("#allLessonListToolbar").before('<div id="selectHelper"></div>')
 		$("#selectHelper").append(
 			`
-			<div style="clear:both;width:96%;margin:auto;padding-bottom:6px;padding-top:2px;border-bottom:1px solid #DDD;line-height:13px;background:#feffef">
-			    <form>
-			      <input id="myinput" type="text" placeholder="Course ID" style="font-size:12px;height:26px;">
-			      <button id="startBtn" type="button" style="height:26px;width:80px;font-size:14px;">开始选课</button>
-			      <button id="stopBtn" type="button" style="height:26px;width:80px;font-size:14px;">停止选课</button>
-			      <button id="quitBtn" type="button" style="height:26px;width:80px;font-size:14px;">退课</button>
+			<div id="xkhWrapper">
+			    <form id="xkhelper">
+			      <input id="myinput" type="text" placeholder="Course ID">
+			      <button id="startBtn" type="button">开始选课</button>
+			      <button id="stopBtn" type="button">停止选课</button>
+			      <button id="quitBtn" type="button">退课</button>
 			    </form>
+			    <div id="resultArea" class="well"></div>
 			</div>
-			<div id="resultArea" class="well" style="width:96%;margin:auto;"></div>
+			<style>
+			    #xkhWrapper {
+			        clear: both;
+				    width: 96%;
+				    margin: auto;
+				    padding-bottom: 6px;
+				    padding-top: 2px;
+				    border-bottom: 1px solit #DDD;
+				    line-height: 13px;
+				    //background: #FEFFEF;
+			    }
+			    #xkhelper button {
+			        height: 26px;
+				    width: 80px;
+				    font-size: 14px;
+			    }
+			    #xkhelper input {
+			        font-size: 12px;
+				    height: 26px;
+			    }
+			</style>
 			`);
 		$("body").append('<script src="//cdn.bootcss.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>');
 	};
 
-	modifyPage();
-	
-	function ask_left() {
-		let url = '/xk/stdElectCourse!queryStdCount.action?projectId=1&semesterId=242';
-		return new Promise((resolve, reject) => {
-			$.get(url, (data, status) => {
-				if (status === 'success') {
-					resolve(data);
-				} else {
-					reject(data);
-				}
-			});
-		});
+	function getConfig() {
+		window.config = window.electCourseTable.config;
+		window.profileId = window.config.profileId;
 	}
+
+	getConfig();
+	modifyPage();
 	
 	function printState(data) {
 		$('#resultArea').append(`<div class="result"></div>`);
@@ -47,30 +61,16 @@ function main() {
 		if (n > 5) $result.first().remove();
 	}
 	
-	function selectLoop(lessonId) {
+	function selectLoop(lessonId, course, callback) {
 		function doSelect() {
-			/*
-			ask_left().then((lessonId2Counts) => {
-				//console.log(lessonId2Counts);
-				eval(lessonId2Counts);
-				console.log(`${new Date} sc: ${sc}, lc: ${lc}`);
-				let [sc, lc] = [window.lessonId2Counts[lessonId].sc, window.lessonId2Counts[lessonId].lc];
-			}, (e) => {
-				console.error(e);
-			});*/
-			$.post('/xk/stdElectCourse!batchOperator.action?profileId=404',
-			{ optype: 'true', operator0: lessonId + ':true:0' }, (data) => {
+			let url = '/xk/stdElectCourse!batchOperator.action' + '?' + 'profileId=' + window.profileId;
+			console.log('POSTing...', url);
+			//$.post('/xk/stdElectCourse!batchOperator.action?profileId=404',
+			$.post(url, { optype: 'true', operator0: lessonId + ':true:0' , captcha_response: '' }, (data) => {
 				printState(data);
 				
 				if (data.indexOf('成功') > 0 || data.indexOf('success') > 0) {
-
-					clearInterval(window.intervalId);
-					
-					$('#selectHelper').append(`
-						<div class="alert alert-success" role="alert">
-						  <strong>Well done!</strong> You successfully select this course.
-						</div>
-					`);
+					callback();
 				}
 			});
 		}
@@ -79,25 +79,33 @@ function main() {
 	}
 	
 	function getCourseId() {
-		let course = $("#myinput").val();
-		course = course.trim();
-		var lessonId = -1;
-		for (let lesson of lessonJSONs) {
-			if (lesson.no == course) {
-				lessonId = lesson.id;
-				break;
+		return new Promise((resolve, reject) => {
+			let course = $("#myinput").val();
+			course = course.trim();
+			let res = lessonJSONs.filter((val) => { return val.no === course; });
+			if (res.length === 0) {
+				reject('没有找到该课程，请检查选课号。');
 			}
-		}
-		if (lessonId < 0) {
-			alert('无法该选择课程');
-			return -1;
-		}
-		selectLoop(lessonId);
+			resolve(res[0].id, course);
+		});
 	};
-	
-	$('#startBtn').click(getCourseId);
-	$('#stopBtn').click(() => { clearInterval(window.intervalId); });
 
+	$('#startBtn').click(() => {
+		getCourseId().then((lessonId, course) => {
+			selectLoop(lessonId, course, () => {
+				clearInterval(window.intervalId);
+
+				$('#selectHelper').append(`
+					<div class="alert alert-success" role="alert">
+					<strong>Well done!</strong> You successfully select ${course}.
+					</div>
+				`);
+			});
+		}, (errMsg) => {
+			alert(errMsg);
+		});
+	});
+	$('#stopBtn').click(() => { clearInterval(window.intervalId); });
 
 }
 
