@@ -13,21 +13,10 @@ chrome.runtime.onInstalled.addListener(function() {
 	});
 });
 
-// Bug: 导致刷新之后无法再次注入，必须重载插件
-//let injected = false;
 chrome.pageAction.onClicked.addListener(function (tab) {
-	//if (!injected) {
-	chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-		chrome.tabs.sendMessage(tabs[0].id, {clear: true}, (response) => {
-			console.log('injected scripts removed.');
-			chrome.tabs.executeScript(null, {file: "xk.js"});
-		});
-	});
-	//	injected = true;
-	//}
+	chrome.tabs.executeScript(null, {file: "xk.js"});
 });
 
-let port = null;
 let hostName = 'xyz.crazyboycjr.fdxkhelper';
 
 function sendNativeMessage(imgData, cb) {
@@ -44,7 +33,6 @@ function sendNativeMessage(imgData, cb) {
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 	if (msg.getToken) {
 		sendNativeMessage(msg.imgData, (response) => {
-			console.log('2233', response);
 			sendResponse({token: response});
 		});
 	}

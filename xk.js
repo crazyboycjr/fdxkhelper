@@ -13,7 +13,7 @@ function main() {
 			      <button id="stopBtn" type="button">停止选课</button>
 			      <!--<button id="quitBtn" type="button">退课</button>-->
 			    </form>
-			    <div id="resultArea" class="well"></div>
+			    <ul id="resultArea" class="well"></ul>
 			</div>
 			<style>
 			    #xkhWrapper {
@@ -37,7 +37,7 @@ function main() {
 			    }
 			</style>
 			`);
-		$("body").append('<script src="//cdn.bootcss.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>');
+		$("head").append('<script src="//cdn.bootcss.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>');
 	};
 
 	function getConfig() {
@@ -122,7 +122,7 @@ function recognize() {
 }
 
 function printState(data) {
-	$('#resultArea').append(`<div class="result"></div>`);
+	$('#resultArea').append(`<li class="result"></li>`);
 	let $result = $('.result');
 	let $data = $(data);
 	let date = new Date;
@@ -180,9 +180,3 @@ document.addEventListener('RW759_connectExtension', (e) => {
 });
 
 //recognize();
-
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-	console.log(sender.tab);
-	$('#selectHelper').remove();
-	$('#injected').remove();
-});
