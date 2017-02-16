@@ -11,7 +11,7 @@ function main() {
 			      <input id="myinput" type="text" placeholder="Course ID">
 			      <button id="startBtn" type="button">开始选课</button>
 			      <button id="stopBtn" type="button">停止选课</button>
-			      <!--<button id="quitBtn" type="button">退课</button>-->
+			      <button id="dropBtn" type="button">退课</button>
 			    </form>
 			    <ul id="resultArea" class="well"></ul>
 			</div>
@@ -60,27 +60,35 @@ function main() {
 		});
 	};
 
-	$('#startBtn').click(() => {
+	function work(operation) {
 		getCourseId().then((arr) => {
 			lessonId = arr[0];
 			course = arr[1];
 			setTimeout(() => {
 				document.dispatchEvent(new CustomEvent('RW759_connectExtension', {
-					detail: {0: lessonId, 1: course, 2: window.profileId, 3: 1}
+					detail: {0: lessonId, 1: course, 2: window.profileId, 3: operation}
 				}));
 			}, 0);
 
 		}, (errMsg) => {
 			alert(errMsg);
 		});
+	}
+
+	$('#startBtn').click(() => {
+		work('choose');
 	});
 
 	$('#stopBtn').click(() => {
 		setTimeout(() => {
 			document.dispatchEvent(new CustomEvent('RW759_connectExtension', {
-				detail: {0: null, 1: null, 2: null, 3: 0}
+				detail: {0: null, 1: null, 2: null, 3: 'stop'}
 			}));
 		}, 	0);
+	});
+
+	$('#dropBtn').click(() => {
+		work('drop');
 	});
 
 }
@@ -134,7 +142,7 @@ function printState(data) {
 	if (n > 5) $result.first().remove();
 }
 
-function selectLoop(lessonId, course, callback) {
+function selectLoop(lessonId, course, operation, callback) {
 	function doSelect() {
 		let url = '/xk/stdElectCourse!batchOperator.action' + '?' + 'profileId=' + window.profileId;
 
@@ -143,7 +151,13 @@ function selectLoop(lessonId, course, callback) {
 			console.log('POSTing...', url);
 			//$.post('/xk/stdElectCourse!batchOperator.action?profileId=404',
 
-			$.post(url, { optype: 'true', operator0: lessonId + ':true:0' , captcha_response: token }, (data) => {
+			let optype, operator0;
+			if (operation === 'choose')
+				optype = 'true', operator0 = ':true:0';
+			else if (operation === 'drop')
+				optype = 'false', operator0 = ':false';
+
+			$.post(url, { optype: optype, operator0: lessonId + operator0 , captcha_response: token }, (data) => {
 				printState(data);
 
 				if (data.indexOf('成功') > 0 || data.indexOf('success') > 0) {
@@ -159,22 +173,23 @@ function selectLoop(lessonId, course, callback) {
 }
 
 document.addEventListener('RW759_connectExtension', (e) => {
-	shouldStart = e.detail[3];
+	operation = e.detail[3];
 
-	if (shouldStart) {
+	if (operation === 'choose' || operation === 'drop') {
 		lessonId = e.detail[0];
 		course = e.detail[1];
 		window.profileId = e.detail[2];
 
-		selectLoop(lessonId, course, () => {
+		selectLoop(lessonId, course, operation, () => {
 			clearInterval(window.intervalId);
+
 			$('#selectHelper').append(`
 				<div class="alert alert-success" role="alert">
-				<strong>Well done!</strong> You successfully select ${course}.
+				<strong>Well done!</strong> You successfully ${operation} ${course}.
 				</div>
 			`);
 		});
-	} else {
+	} else if (operation === 'stop') {
 		clearInterval(window.intervalId);
 	}
 });
