@@ -23,4 +23,4 @@ pacman -S tesseract
 
 最后在课程表页面打开插件即可进行选课退课
 
-![screenshot](https://github.com/crazyboycjr/fdxkhelper/raw/screenshot.png)
+![screenshot](https://github.com/crazyboycjr/fdxkhelper/raw/master/screenshot.png)
