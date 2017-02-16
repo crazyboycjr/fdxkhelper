@@ -14,9 +14,16 @@
 		"activeTab",
 		"nativeMessaging"
 	],
-	"web_accessible_resources": [
-		"lessondata/lessonJSONs.txt"
-	],
+	"content_scripts": [{
+		"matches": [
+			"http://xk.fudan.edu.cn/*"
+		],
+		"js": ["jquery.js"]
+	}],
+	"web_accessible_resources": ["injected.js"],
+	"externally_connectable": {
+		"matches": ["*://xk.fudan.edu.cn/*"]
+	},
 	"icons": {
 		"48": "2.png",
 		"128": "2.png"

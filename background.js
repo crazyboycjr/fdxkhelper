@@ -13,44 +13,28 @@ chrome.runtime.onInstalled.addListener(function() {
 	});
 });
 
-
-let injected = false;
 chrome.pageAction.onClicked.addListener(function (tab) {
-	if (!injected) {
-		chrome.tabs.executeScript(null, {file: "xk.js"});
-		injected = true;
-	}
+	chrome.tabs.executeScript(null, {file: "xk.js"});
 });
 
-let port = null;
 let hostName = 'xyz.crazyboycjr.fdxkhelper';
 
-function sendNativeMessage(imgData) {
+function sendNativeMessage(imgData, cb) {
 	msg = {"text": imgData};
-	port.postMessage(imgData);
+	console.log('sending:', msg);
+
+	chrome.runtime.sendNativeMessage(hostName, msg, (response) => {
+		console.log('收到', response);
+		cb(response);
+	});
+	
 }
 
-function onNativeMessage(msg) {
-	//TODO Add some check of invalid char
-	return msg;
-}
-
-function onDisconnected() {
-	port = null;
-}
-
-function connect() {
-	port = chrome.runtime.connectNative(hostName);
-	port.onMessage.addListener(onNativeMessage);
-	port.onDisconnect.addListerner(onDisconnected);
-}
-
-chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 	if (msg.getToken) {
-		if (!port) {
-			connect();
-		}
-		sendNativeMessage(msg.imgData);
-		sendResponse({token: token});
+		sendNativeMessage(msg.imgData, (response) => {
+			sendResponse({token: response});
+		});
 	}
+	return true;
 });

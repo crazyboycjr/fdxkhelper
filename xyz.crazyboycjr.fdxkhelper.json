@@ -1,0 +1,9 @@
+{
+	"name": "xyz.crazyboycjr.fdxkhelper",
+	"description": "recognize fudan xk captcha with tesseract",
+	"path": "HOST_PATH",
+	"type": "stdio",
+	"allowed_origins": [
+		"chrome-extension://baibnlajdgdfldnolclmgghenajommha/"
+	]
+}
