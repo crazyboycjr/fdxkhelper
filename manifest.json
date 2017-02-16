@@ -16,11 +16,11 @@
 	],
 	"content_scripts": [{
 		"matches": [
-			"http://*/*",
-			"https://*/*"
+			"http://xk.fudan.edu.cn/*"
 		],
 		"js": ["jquery.js"]
 	}],
+	"web_accessible_resources": ["injected.js"],
 	"externally_connectable": {
 		"matches": ["*://xk.fudan.edu.cn/*"]
 	},
